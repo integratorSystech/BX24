@@ -8,18 +8,25 @@ class BX24{
   protected $data;
   protected $start;
   protected $total;
+  protected $auth;
+  protected $app;
 
-  public function __construct($portal){
+
+  public function __construct($portal, $app=0){
     $this->portal = $portal;
     $this->batch_method = '/batch.json';
+    $this->app = $app;
+    if($this->app){
+      $this->auth = $_POST['AUTH_ID'];
+    }
   }
+
 
   public function call($method, $params){
     $this->method = $method;
     $this->params = $params;
     $this->data['result'] = [];
     $this->start = 0;
-
 
     $Data = $this->connect($this->method, $this->params);
     $this->total = $Data['total'];
@@ -37,6 +44,7 @@ class BX24{
     }
   }
 
+
   public function batch($fields){
     foreach ($fields as $params){
       foreach ($params as $method => $param){
@@ -46,26 +54,6 @@ class BX24{
     return $this->connect($this->batch_method, $batch_params);
   }
 
-  private function connect($method, $params){
-    usleep(500000);
-    $queryUrl = $this->portal.$method;
-
-    $queryData = http_build_query($params);
-
-    $curl = curl_init();
-    curl_setopt_array($curl, [
-        CURLOPT_SSL_VERIFYPEER => 0,
-        CURLOPT_POST => 1,
-        CURLOPT_HEADER => 0,
-        CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_URL => $queryUrl,
-        CURLOPT_POSTFIELDS => $queryData
-      ]);
-    $result = curl_exec($curl);
-    curl_close($curl);
-    $result = json_decode($result, true);
-      return $result;
-  }
 
   private function batch_param(){
     $i=0;
@@ -83,6 +71,33 @@ class BX24{
       $this->data['result'] = array_merge($this->data['result'], $result);
     }
     return;
+  }
+
+
+  private function connect($method, $params){
+    usleep(450000);
+    $queryUrl = $this->portal.$method;
+
+    if ($this->app){
+      $queryData = http_build_query(array_merge($params, ["auth" => $this->auth]));
+    }
+    else{
+      $queryData = http_build_query($params);
+    }
+
+    $curl = curl_init();
+    curl_setopt_array($curl, [
+        CURLOPT_SSL_VERIFYPEER => 0,
+        CURLOPT_POST => 1,
+        CURLOPT_HEADER => 0,
+        CURLOPT_RETURNTRANSFER => 1,
+        CURLOPT_URL => $queryUrl,
+        CURLOPT_POSTFIELDS => $queryData
+      ]);
+    $result = curl_exec($curl);
+    curl_close($curl);
+    $result = json_decode($result, true);
+      return $result;
   }
 }
 ?>
