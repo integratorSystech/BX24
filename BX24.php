@@ -45,13 +45,13 @@ class BX24{
   }
 
 
-  public function batch($fields){
+  private function private_batch($fields){
     foreach ($fields as $params){
       foreach ($params as $method => $param){
         $batch_params['cmd'][] =  $method."?".http_build_query($param);
       }
     }
-    return $this->connect($this->batch_method, $batch_params);
+    return $this->connect($this->batch_method, $batch_params)['result'];
   }
 
 
@@ -66,11 +66,43 @@ class BX24{
         continue;
       }
     }
-    $Data = $this->batch($Params);
-    foreach ($Data['result']['result'] as $result){
+    $Data = $this->private_batch($Params);
+    foreach ($Data['result'] as $result){
       $this->data['result'] = array_merge($this->data['result'], $result);
     }
     return;
+  }
+
+
+  public function batch($fields){
+	    foreach ($fields as $params){
+      foreach ($params as $method => $param){
+        $batch_params['cmd'][] =  $method."?".http_build_query($param);
+      }
+    }
+	$count=count($batch_params['cmd']);
+	$kol=ceil($count/50);
+	$c=0;
+	$yst=0;
+	$all=array();
+	while ($c<$kol)
+	{
+		$obs=0;
+		while ($obs<50)
+		{
+		$tek['cmd'][$obs]=array_shift($batch_params['cmd']);
+		$obs++;
+		}
+		$data=$this->connect($this->batch_method, $tek)['result'];
+		foreach($data['result'] as $y)
+		{
+		$all[$yst]=$y;
+		$yst++;
+		}
+		$c++;
+		unset($tek,$data);
+	}
+	return $all;
   }
 
 
