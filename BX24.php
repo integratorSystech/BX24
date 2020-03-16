@@ -28,9 +28,9 @@ class BX24{
     $this->data['result'] = [];
     $this->start = 0;
 
-    $Data = $this->connect($this->method, $this->params);
-    $this->total = $Data['total'];
-    if (!empty($this->total)){
+    $Data = $this->connect($this->method, $this->params);    
+    if (!empty($Data['total'])){
+      $this->total = $Data['total'];
       if ($this->total > 50){
         $this->batch_param();
         return $this->data;
