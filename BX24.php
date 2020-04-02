@@ -2,7 +2,6 @@
 class BX24{
 
   public $method;
-  public $batch_method;
   public $params;
   protected $portal;
   protected $data;
@@ -11,10 +10,11 @@ class BX24{
   protected $auth;
   protected $app;
 
+  const batch_method = '/batch.json';
+
 
   public function __construct($portal, $app=0){
     $this->portal = $portal;
-    $this->batch_method = '/batch.json';
     $this->app = $app;
     if($this->app){
       $this->auth = $_POST['AUTH_ID'];
@@ -28,7 +28,7 @@ class BX24{
     $this->data['result'] = [];
     $this->start = 0;
 
-    $Data = $this->connect($this->method, $this->params);    
+    $Data = $this->connect($this->method, $this->params);
     if (!empty($Data['total'])){
       $this->total = $Data['total'];
       if ($this->total > 50){
@@ -51,7 +51,7 @@ class BX24{
         $batch_params['cmd'][] =  $method."?".http_build_query($param);
       }
     }
-    return $this->connect($this->batch_method, $batch_params)['result'];
+    return $this->connect(self::batch_method, $batch_params)['result'];
   }
 
 
@@ -93,12 +93,16 @@ class BX24{
 		$tek['cmd'][$obs]=array_shift($batch_params['cmd']);
 		$obs++;
 		}
-		$data=$this->connect($this->batch_method, $tek)['result'];
+		$data=$this->connect(self::batch_method, $tek)['result'];
 		foreach($data['result'] as $y)
 		{
 		$all[$yst]=$y;
 		$yst++;
 		}
+    if (!empty($data['result_error']))
+    {
+      $all['errors'][] = $data['result_error'];
+    }
 		$c++;
 		unset($tek,$data);
 	}
