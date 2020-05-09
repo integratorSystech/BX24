@@ -1,0 +1,16 @@
+{
+    "name": "epickfail/bx24",
+    "description": "SDK for REST API Bitrix24",
+    "authors": [
+        {
+            "name": "Panfilov Artem",
+            "email": "a.panfilov@systech.ru"
+        }
+    ],
+    "require": {
+	"php": ">=5.4.0"	
+	},
+    "autoload": {
+	"classmap": ["src"]
+	}
+}
