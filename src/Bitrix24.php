@@ -22,12 +22,6 @@ class Bitrix24 implements ComponentBitrix24
     protected $portal;
     protected $app;
     
-    /**
-    * @param string $var string to output
-    * @author WikiEditor
-    * @copyright 2016 Wikipedia
-    * @return string unchanged
-    */
     public static function dump($var)
     {
         echo '<br>';
@@ -91,6 +85,10 @@ class Bitrix24 implements ComponentBitrix24
         ]);
         $result = curl_exec($curl);
         curl_close($curl);
+        if(empty(json_decode($result, true)['result'])){
+            $res['result'] = json_decode($result, true);
+            return $res; 
+        }
         return json_decode($result, true);
   }
 }
