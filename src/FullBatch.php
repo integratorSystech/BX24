@@ -5,7 +5,7 @@ class FullBatch extends DecoratorBitrix24
 {    
     public function batch($fields)
     {   
-        $data = [];
+        $data['result'] = [];
         while (count($fields) > 0) {
             $res = parent::batch(array_splice($fields, 0, 50));
             
